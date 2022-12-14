@@ -2,13 +2,11 @@ package auth
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/ecr"
 	"github.com/aws/aws-sdk-go-v2/service/ecr/types"
-	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"log"
 	"regexp"
 )
@@ -18,6 +16,8 @@ type ecrAuth struct {
 	Reg       string
 	Region    string
 	Token     *string
+	UserName  string
+	Password  *string
 	ecrClient *ecr.Client
 }
 
@@ -42,12 +42,12 @@ func NewEcrAuth(roleARN string, reg string) (Authenticator, error) {
 	}
 
 	res.ecrClient = ecr.NewFromConfig(cfg)
-	client := sts.NewFromConfig(cfg)
+	//client := sts.NewFromConfig(cfg)
 
-	if res.RoleARN != "" {
-		creds := stscreds.NewAssumeRoleProvider(client, res.RoleARN)
-		res.ecrClient = ecr.NewFromConfig(aws.Config{Credentials: creds, Region: res.Region})
-	}
+	//if res.RoleARN != "" {
+	//	creds := stscreds.NewAssumeRoleProvider(client, res.RoleARN)
+	//	res.ecrClient = ecr.NewFromConfig(aws.Config{Credentials: creds, Region: res.Region})
+	//}
 
 	token, err := res.ecrClient.GetAuthorizationToken(context.TODO(), &ecr.GetAuthorizationTokenInput{})
 	if err != nil {
@@ -56,6 +56,21 @@ func NewEcrAuth(roleARN string, reg string) (Authenticator, error) {
 
 	res.Token = token.AuthorizationData[0].AuthorizationToken
 
+	res.UserName = "AWS"
+
+	pwb := make([]byte, base64.StdEncoding.DecodedLen(len(*res.Token)))
+	_, err = base64.StdEncoding.Decode(pwb, []byte(*res.Token))
+	if err != nil {
+		return nil, fmt.Errorf("error decoding ECR TOKEN: %s", err)
+	}
+
+	pw := string(pwb)
+	if pw[0:4] == "AWS:" {
+		pw = pw[4:]
+	} else {
+		return nil, fmt.Errorf("error decoding ECR TOKEN: should start with 'AWS:'")
+	}
+	res.Password = &pw
 	return res, nil
 }
 
@@ -82,4 +97,11 @@ func (e ecrAuth) GetToken() string {
 		return ""
 	}
 	return *e.Token
+}
+
+func (e ecrAuth) GetLoginPassword() (string, string) {
+	if e.Password == nil {
+		return "", ""
+	}
+	return e.UserName, *e.Password
 }

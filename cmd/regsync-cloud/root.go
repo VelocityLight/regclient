@@ -108,8 +108,8 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&rootOpts.confFile, "config", "c", "", "Config file")
 	rootCmd.PersistentFlags().StringVarP(&rootOpts.verbosity, "verbosity", "v", logrus.InfoLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
 	rootCmd.PersistentFlags().StringArrayVar(&rootOpts.logopts, "logopt", []string{}, "Log options")
+	rootCmd.PersistentFlags().BoolVar(&rootOpts.isCloud, "cloud", false, "cloud container registry sync for dbaas")
 	versionCmd.Flags().StringVarP(&rootOpts.format, "format", "", "{{printPretty .}}", "Format output with go template syntax")
-	onceCmd.Flags().BoolVar(&rootOpts.isCloud, "cloud", false, "cloud container registry sync for dbaas")
 
 	rootCmd.MarkPersistentFlagFilename("config")
 	serverCmd.MarkPersistentFlagRequired("config")

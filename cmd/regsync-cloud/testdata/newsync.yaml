@@ -1,30 +1,55 @@
-commonRepositories:
-  - name: test-temp/grafana/grafana
-    source: docker.io/grafana/grafana
+repositorySets:
+  commonRepositories:
+  - name: test-temp/busybox
+    source: docker.io/busybox
     tags:
       allow:
-        - "6.0.1"
+        - "1.33.1"
 targetRegistries:
   - name: 385595570414.dkr.ecr.us-west-1.amazonaws.com
-    type: AWS
+    type: ECR
+    includeRepositorieSets:
+      - commonRepositories
   - name: 385595570414.dkr.ecr.us-west-2.amazonaws.com
-    type: AWS
+    type: ECR
     repositories:
       - name: test-temp/busybox
         source: docker.io/busybox
         tags:
           allow:
-            - "1.31.1"
             - "1.34.1"
-      - name: test-temp/prom/node-exporter
-        source: docker.io/prom/node-exporter
+  - name: gcr.io
+    project: pingcap-public
+    type: GCR
+#    includeRepositorieSets:
+#      - commonRepositories
+    repositories:
+      - name: test-temp/busybox
+        source: docker.io/busybox
         tags:
           allow:
-            - "v1.3.1"
+            - "1.33.1"
+            - "1.34.1"
+  - name: gcr.io
+    project: pingcap-dbaas-build
+    type: GCR
+    repositories:
+      - name: test-temp/busybox
+        source: docker.io/busybox
+        tags:
+          allow:
+            - "1.33.1"
+  - name: gcr.io
+    project: pingcap-gardener
+    type: GCR
+    repositories:
+      - name: test-temp/busybox
+        source: docker.io/busybox
+        tags:
+          allow:
+            - "1.34.1"
 defaults:
   ratelimit:
     min: 100
     retry: 15m
-  parallel: 10
-sourceRegistries:
-  - name: docker.io
+  parallel: 0

@@ -488,6 +488,9 @@ func (b *BasicHandler) ProcessChallenge(c Challenge) error {
 func (b *BasicHandler) GenerateAuth() (string, error) {
 	cred := b.credsFn(b.host)
 	if cred.User == "" || cred.Password == "" {
+		if cred.Token != "" {
+			return fmt.Sprintf("Basic %s", cred.Token), nil
+		}
 		return "", ErrNotFound
 	}
 	auth := base64.StdEncoding.EncodeToString([]byte(cred.User + ":" + cred.Password))
