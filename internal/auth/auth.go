@@ -629,7 +629,7 @@ func (b *BearerHandler) isExpired() bool {
 		return true
 	}
 	expireSec := b.token.IssuedAt.Add(time.Duration(b.token.ExpiresIn) * time.Second)
-	expireSec.Add(tokenBuffer * -1)
+	_ = expireSec.Add(tokenBuffer * -1)
 	return time.Now().After(expireSec)
 }
 

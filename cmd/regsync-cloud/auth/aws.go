@@ -1,3 +1,4 @@
+// Package auth is used for HTTP authentication
 package auth
 
 import (
