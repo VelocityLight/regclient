@@ -1,10 +1,10 @@
 repositorySets:
   commonRepositories:
-  - name: test-temp/busybox
-    source: docker.io/busybox
-    tags:
-      allow:
-        - "1.33.1"
+    - name: test-temp/busybox
+      source: docker.io/busybox
+      tags:
+        allow:
+          - "1.33.1"
 targetRegistries:
   - name: 385595570414.dkr.ecr.us-west-1.amazonaws.com
     type: ECR

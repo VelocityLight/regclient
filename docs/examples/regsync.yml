@@ -21,15 +21,15 @@ sync:
     type: repository
     tags:
       allow:
-      - "latest"
-      - "3"
-      - "3.\\d+"
+        - "latest"
+        - "3"
+        - "3.\\d+"
   - source: debian
     target: registry:5000/library/debian
     type: repository
     tags:
       allow:
-      - "\\d+"
+        - "\\d+"
     mediaTypes:
       - "application/vnd.docker.distribution.manifest.v1+json"
       - "application/vnd.docker.distribution.manifest.v1+prettyjws"
