@@ -218,8 +218,13 @@ func (a *auth) HandleResponse(resp *http.Response) error {
 		"challenge": cl,
 	}).Debug("Auth request parsed")
 	if len(cl) < 1 {
-		return ErrEmptyChallenge
+		if host != "hub.pingcap.net" {
+			return ErrEmptyChallenge
+		} else {
+			return nil
+		}
 	}
+
 	goodChallenge := false
 	// loop over the received challenge(s)
 	for _, c := range cl {
@@ -629,7 +634,7 @@ func (b *BearerHandler) isExpired() bool {
 		return true
 	}
 	expireSec := b.token.IssuedAt.Add(time.Duration(b.token.ExpiresIn) * time.Second)
-	expireSec.Add(tokenBuffer * -1)
+	_ = expireSec.Add(tokenBuffer * -1)
 	return time.Now().After(expireSec)
 }
 

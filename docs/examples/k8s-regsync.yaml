@@ -63,15 +63,15 @@ spec:
         app: "regsync"
     spec:
       containers:
-      - name: regsync
-        image: regclient/regsync:latest
-        imagePullPolicy: IfNotPresent
-        args: ["server", "-c", "/etc/regsync/regsync.yml"]
-        volumeMounts:
-        - name: regsync-config
-          mountPath: /etc/regsync/regsync.yml
-          subPath: regsync.yml
+        - name: regsync
+          image: regclient/regsync:latest
+          imagePullPolicy: IfNotPresent
+          args: ["server", "-c", "/etc/regsync/regsync.yml"]
+          volumeMounts:
+            - name: regsync-config
+              mountPath: /etc/regsync/regsync.yml
+              subPath: regsync.yml
       volumes:
-      - name: regsync-config
-        configMap:
-          name: "regsync-cm"
+        - name: regsync-config
+          configMap:
+            name: "regsync-cm"
