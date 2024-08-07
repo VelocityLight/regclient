@@ -5,11 +5,13 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"log"
+	"regexp"
+	"strings"
+
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ecr"
 	"github.com/aws/aws-sdk-go-v2/service/ecr/types"
-	"log"
-	"regexp"
 )
 
 type ecrAuth struct {
@@ -77,15 +79,29 @@ func NewEcrAuth(roleARN string, reg string) (Authenticator, error) {
 
 func (e ecrAuth) CheckRepo(repo string) (string, error) {
 	var repoRes *types.Repository
+	var regId *string
+	if e.Reg != "" {
+		regId = &strings.Split(e.Reg, ".")[0]
+	}
+
 	describeRes, err := e.ecrClient.DescribeRepositories(context.TODO(), &ecr.DescribeRepositoriesInput{
+		RegistryId:      regId,
 		RepositoryNames: []string{repo},
 	})
+
 	if err != nil {
-		createRes, err := e.ecrClient.CreateRepository(context.TODO(), &ecr.CreateRepositoryInput{RepositoryName: &repo})
-		if err != nil {
-			return "", fmt.Errorf("error create ECR repo when describe failed: %s", err)
+		if strings.Contains(err.Error(), "does not exist in the registry") {
+			createRes, err := e.ecrClient.CreateRepository(context.TODO(), &ecr.CreateRepositoryInput{
+				RegistryId:     regId,
+				RepositoryName: &repo,
+			})
+			if err != nil {
+				return "", fmt.Errorf("error create ECR repo when describe failed: %s", err)
+			}
+			repoRes = createRes.Repository
+		} else {
+			return "", fmt.Errorf("error describe ECR repo: %s", err)
 		}
-		repoRes = createRes.Repository
 	} else {
 		repoRes = &describeRes.Repositories[0]
 	}
