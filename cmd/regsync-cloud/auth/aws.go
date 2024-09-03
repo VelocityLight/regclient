@@ -79,20 +79,20 @@ func NewEcrAuth(roleARN string, reg string) (Authenticator, error) {
 
 func (e ecrAuth) CheckRepo(repo string) (string, error) {
 	var repoRes *types.Repository
-	var regId *string
+	var regID *string
 	if e.Reg != "" {
-		regId = &strings.Split(e.Reg, ".")[0]
+		regID = &strings.Split(e.Reg, ".")[0]
 	}
 
 	describeRes, err := e.ecrClient.DescribeRepositories(context.TODO(), &ecr.DescribeRepositoriesInput{
-		RegistryId:      regId,
+		RegistryId:      regID,
 		RepositoryNames: []string{repo},
 	})
 
 	if err != nil {
 		if strings.Contains(err.Error(), "does not exist in the registry") {
 			createRes, err := e.ecrClient.CreateRepository(context.TODO(), &ecr.CreateRepositoryInput{
-				RegistryId:     regId,
+				RegistryId:     regID,
 				RepositoryName: &repo,
 			})
 			if err != nil {
