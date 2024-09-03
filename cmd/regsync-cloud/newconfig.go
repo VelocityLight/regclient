@@ -40,6 +40,7 @@ const (
 	ECR = "ECR"
 	GCR = "GCR"
 	GAR = "GAR"
+	ACR = "ACR"
 )
 
 func (c NewConfig) auth(r Registry, cfg *Config) (auth.Authenticator, error) {
@@ -65,6 +66,9 @@ func (c NewConfig) auth(r Registry, cfg *Config) (auth.Authenticator, error) {
 		}
 	case GCR:
 		crAuth, _ = auth.NewGcrAuth(r.Name, r.Project)
+		h.RepoAuth = true
+	case ACR:
+		crAuth, _ = auth.NewAcrAuth(r.Name)
 		h.RepoAuth = true
 	default:
 		crAuth, _ = auth.NewCommonCRAuth(r.Name)
